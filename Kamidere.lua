@@ -395,7 +395,7 @@ end
 -- ============================================================
 -- KAMIDERE / TENZODERE UI ADAPTER
 -- ============================================================
-local UI_URL="https://raw.githubusercontent.com/YOUR_NAME/TenzodereUI/main/init.lua"
+local UI_URL="https://raw.githubusercontent.com/tenzarek/TenzodereUI/main/init.lua"
 local Library=loadstring(game:HttpGet(UI_URL))()
 local Window=Library:CreateWindow({Name="KAMIDERE",Keybind=Enum.KeyCode.Insert,Accent=Color3.fromRGB(245,170,239)})
 local sg=Window.Gui

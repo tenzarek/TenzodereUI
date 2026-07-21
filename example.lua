@@ -1,5 +1,5 @@
 -- Example usage after publishing init.lua and Lucide.lua to GitHub
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_NAME/TenzodereUI/main/init.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/tenzarek/TenzodereUI/main/init.lua"))()
 
 local Window = Library:CreateWindow({
     Name = "TENZODERE",

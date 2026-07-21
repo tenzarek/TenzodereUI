@@ -431,9 +431,8 @@ local function mkToggle(parent,label,default,callback)
  registerConfigControl(label,{kind="toggle",get=c.Get,set=c.Set});return c
 end
 local function mkSlider(parent,label,min,max,default,step,callback)
- local sec=sectionOf(parent);local before=captureBefore(sec)
- local c=sec:CreateSlider({Name=label,Flag=label,Min=min,Max=max,Default=default,Increment=step,Callback=callback})
- registerConfigControl(label,{kind="slider",get=c.Get,set=c.Set});return latestRow(sec,before)
+ local c=sectionOf(parent):CreateSlider({Name=label,Flag=label,Min=min,Max=max,Default=default,Increment=step,Callback=callback})
+ registerConfigControl(label,{kind="slider",get=c.Get,set=c.Set});return c.Root
 end
 local function mkRGB(parent,label,default,callback)
  local sec=sectionOf(parent);local c=sec:CreateColorPicker({Name=label,Flag=label,Default=default,Callback=callback})
@@ -445,37 +444,18 @@ local function mkDropdown(parent,label,options,default,callback)
 end
 local function mkButton(parent,label,callback)return sectionOf(parent):CreateButton({Name=label,Callback=callback})end
 local function mkKeybind(parent,label,onKey,onMode)
- local sec=sectionOf(parent)
- local mode=sec:CreateDropdown({Name=label.." Mode",Options={"hold","toggle","always on"},Default="hold",Callback=onMode})
- local key=sec:CreateKeybind({Name=label,Default=Enum.KeyCode.None,Callback=onKey})
- local function set(data)
-  if type(data)~="table" then return end
-  mode.Set(data.mode or "hold")
-  local k=(type(data.key)=="string" and Enum.KeyCode[data.key]) or Enum.KeyCode.None
-  key.Set(k)
- end
- registerConfigControl(label,{kind="keybind",get=function()local k=key.Get();return{key=k and k.Name or "none",mode=mode.Get()}end,set=set})
- return key
+ local key=sectionOf(parent):CreateKeybind({Name=label,Default=Enum.KeyCode.None,ModeDefault="hold",Modes={"hold","toggle","always on"},Callback=onKey,ModeCallback=onMode})
+ local function set(data)if type(data)~="table"then return end;key.SetMode(data.mode or "hold");key.Set(Enum.KeyCode[data.key or "None"]or Enum.KeyCode.None)end
+ registerConfigControl(label,{kind="keybind",get=function()local k=key.Get();return{key=k and k.Name or "none",mode=key.GetMode()}end,set=set})
+ return key.Root
 end
 local function mkMultiSelect(parent,label,options,defaults,callback)
- local selected={} for _,v in ipairs(defaults or {})do selected[v]=true end
- local controls={}
- local function emit()local out={}for _,v in ipairs(options)do if selected[v]then table.insert(out,v)end end;if #out==0 and options[1]then selected[options[1]]=true;out={options[1]}end;callback(out)end
- for _,opt in ipairs(options)do controls[opt]=sectionOf(parent):CreateToggle({Name=label..": "..opt,Default=selected[opt]==true,Callback=function(v)selected[opt]=v;emit()end})end
- local function get()local out={}for _,v in ipairs(options)do if selected[v]then table.insert(out,v)end end;return out end
- local function set(values)local wanted={}for _,v in ipairs(type(values)=="table" and values or {})do wanted[v]=true end;for _,opt in ipairs(options)do selected[opt]=wanted[opt]==true;controls[opt].Set(selected[opt],true)end;emit()end
- registerConfigControl(label,{kind="multiselect",get=get,set=set});return controls
+ local c=sectionOf(parent):CreateMultiDropdown({Name=label,Flag=label,Options=options,Default=defaults,Callback=callback})
+ registerConfigControl(label,{kind="multiselect",get=c.Get,set=c.Set});return c.Root
 end
 function mkTextSetting(parent,label,default,callback)
- local sec=sectionOf(parent)
- local row=Instance.new("Frame",sec.Container);row.Size=UDim2.new(1,0,0,48);row.BackgroundTransparency=1
- local title=Instance.new("TextLabel",row);title.Size=UDim2.new(.45,0,1,0);title.BackgroundTransparency=1;title.Text=label;title.TextColor3=Color3.fromRGB(177,177,177);title.TextSize=13;title.Font=Enum.Font.Code;title.TextXAlignment=Enum.TextXAlignment.Left
- local box=Instance.new("TextBox",row);box.AnchorPoint=Vector2.new(1,.5);box.Position=UDim2.new(1,0,.5,0);box.Size=UDim2.fromOffset(128,27);box.BackgroundColor3=Color3.fromRGB(20,20,20);box.BorderSizePixel=0;box.Text=tostring(default or "");box.TextColor3=Color3.fromRGB(177,177,177);box.TextSize=11;box.Font=Enum.Font.Code;box.ClearTextOnFocus=false
- Instance.new("UICorner",box).CornerRadius=UDim.new(0,4)
- local current=tostring(default or "")
- local function set(v)current=tostring(v or "");box.Text=current;callback(current)end
- box.FocusLost:Connect(function()set(box.Text)end)
- registerConfigControl(label,{kind="text",get=function()return current end,set=set});return row
+ local c=sectionOf(parent):CreateInput({Name=label,Flag=label,Default=default,Callback=callback})
+ registerConfigControl(label,{kind="text",get=c.Get,set=c.Set});return c.Root
 end
 -- Target list popup kept as a detached Kamidere panel.
 local targetListPanel=Instance.new("Frame",sg);targetListPanel.Name="KamidereTargetList";targetListPanel.Size=UDim2.fromOffset(360,430);targetListPanel.Position=UDim2.new(.5,-180,.5,-215);targetListPanel.BackgroundColor3=Color3.fromRGB(17,17,17);targetListPanel.BorderSizePixel=0;targetListPanel.Visible=false;targetListPanel.ZIndex=700;targetListPanel.Active=true;targetListPanel.Draggable=true

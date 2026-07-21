@@ -6,7 +6,7 @@ local UIS=game:GetService("UserInputService")
 local TS=game:GetService("TweenService")
 local Http=game:GetService("HttpService")
 
-local LUCIDE_URL="https://raw.githubusercontent.com/YOUR_NAME/TenzodereUI/main/Lucide.lua"
+local LUCIDE_URL="https://raw.githubusercontent.com/tenzarek/TenzodereUI/main/Lucide.lua"
 local ok,Lucide=pcall(function() return loadstring(game:HttpGet(LUCIDE_URL))() end)
 if not ok then
  Lucide={create=function(name,size,color)local f=Instance.new("TextLabel");f.BackgroundTransparency=1;f.Size=UDim2.fromOffset(size or 18,size or 18);f.Text="•";f.TextColor3=color or Color3.fromRGB(145,145,145);f.TextSize=size or 18;return f end}
